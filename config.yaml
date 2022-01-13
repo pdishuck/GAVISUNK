@@ -1,3 +1,3 @@
-asm: "/net/eichler/vol26/15000/nobackups/pdx/sunk/GAVISUNK/data/hg00733.def_h1v1_h2v1.hifiasm.fa"
-ONT_manifest: "/net/eichler/vol26/15000/nobackups/pdx/sunk/GAVISUNK/ont.tsv"
+asm: "/path/hifiasm.fa"
+ONT_manifest: "/path/ont.tsv"
 SUNK_len: 20
