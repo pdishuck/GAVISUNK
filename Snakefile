@@ -4,7 +4,8 @@ import pandas as pd
 configfile: "config.yaml"
 
 ENV = os.path.dirname(workflow.snakefile) + "/env.cfg"
-shell.prefix("source {ENV}; set -eo pipefail; ")
+# shell.prefix("source {ENV}; set -eo pipefail; ")
+
 
 onttsv = config['ONT_manifest']
 file_df = pd.read_csv(onttsv,sep="\t",)
@@ -72,7 +73,7 @@ rule mrsfast_search:
   shell:
     """
     mrsfast --search mrsfast/ref.fa --threads 64 --mem 96 --seq {input.db} -o {output.sam} --disable-nohits -e 0 
-    samtools sort -@ 64 -m 1.5G {output.sam} -T $TMPDIR -o {output.bam} 
+    samtools sort -@ 64 -m 2G {output.sam} -T $TMPDIR -o {output.bam} 
     """
 
 rule bed_convert:
@@ -152,8 +153,13 @@ rule viz:
     "benchmarks/viz_{sample}.txt",        
   conda:
     "envs/viz.yaml"
+#   shell:
+#     "python -c 'import sys; print(sys.prefix); print(sys.path)' > env_debug.out"
+#  script:
+#    "scripts/viz2.py"
   shell:
     """
-    python scripts/viz.py {input.bed} {input.locs} {input.SUNKPOS} {input.rlen} &&
+    python scripts/viz.py {input.bed} {input.locs} {input.SUNKPOS} {input.rlen} 'plots' &&
     touch {output}
     """
+

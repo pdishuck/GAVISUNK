@@ -1,5 +1,5 @@
 import networkx as nx
-import graph_tool as gt
+# import graph_tool as gt
 import timeit
 
 from scipy.spatial.distance import pdist
@@ -21,8 +21,12 @@ import numpy as np
  
 from matplotlib import (pyplot as plt,
                         lines)
-
+import matplotlib.ticker as mtick
 import argparse
+
+print(pd.__version__)
+
+
 parser = argparse.ArgumentParser()
 
 parser.add_argument("bed", help=".bed file of regions to visualize")
@@ -42,7 +46,9 @@ args = parser.parse_args()
 #hap=
 
 kmermergefile = args.SUNKs
-plotdir = args.outdir
+kmermerge = pd.read_csv(kmermergefile,sep="\t",header=None,names=['chrom','loc','kmer','ID'])# 
+kmermerge = kmermerge.drop_duplicates(subset='kmer')
+plotdir = args.plotdir
 sunkposfile = args.sunkpos
 sunkposcat = pd.read_csv(sunkposfile,sep="\t",header=None,names=['rname','pos','chrom','start','ID'],dtype={'rname':'string','pos':'uint32','chrom':'category','start':'uint32','ID':'uint32'})# 
 
@@ -59,7 +65,9 @@ if opt_filter:
 
 # import region bed
 regbedfile = args.bed
-bedreg = pd.read_csv(regbedfile, delimiter="\t",names=['chrom','start','end'])
+bedreg = pd.read_csv(regbedfile, delimiter="\t",encoding='utf-8',header=None)
+header = ['chrom','start','end','orient','label']
+bedreg.columns = header + [''] * (len(bedreg.columns) - len(header))
 
 # LOOP OVER BED REGIONS
 for row in bedreg.itertuples():
@@ -69,7 +77,10 @@ for row in bedreg.itertuples():
     xmin = regstart
     xmax = regend
 
-    print("processing " + contig+"_"+str(regstart)+"_"+str(regend))
+    kmer_groups = kmermerge.query("chrom == @contig").drop_duplicates(subset='ID')
+    kmer_groups['dist'] = kmer_groups.ID.diff().fillna(kmer_groups.ID).astype(int) #rows)
+    
+    print("processing " + str(contig)+"_"+str(regstart)+"_"+str(regend))
     # contig = bedreg1['chrom'].values[0]
     # xmin = bedreg1['start'].values[0]
     # xmax = bedreg1['end'].values[0]
@@ -91,7 +102,7 @@ for row in bedreg.itertuples():
     maxset = set(counts.drop_duplicates(subset=['rname'],keep='first').query('chrom == @contig').rname.tolist())
     print(len(maxset))
     sunkpos3b = sunkposcat.query('rname in @maxset and chrom==@contig').sort_values(by=['rname','start']) # reads with multiple SUNK group matches
-    del(sunkpos3)
+#     del(sunkpos3)
     # del(sunkposcat)
     print(len(sunkpos3b))
     print(len(pd.unique(sunkpos3b.rname)))
