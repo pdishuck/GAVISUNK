@@ -19,3 +19,6 @@ The ONT manifest is a .tsv file "ont.tsv" with the following columns:
 I recommend a single input file for each haplotype, and to haplotype phase with canu and parental illumina (not currently incorporated into this pipeline)
 
 For now, run Snakefile locally on high memory machine
+
+Troubleshooting: 
+may need to deactivate local conda env to get snakemake conda envs to work correctly ($PATH issues as in https://github.com/snakemake/snakemake/issues/883)
