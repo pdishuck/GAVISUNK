@@ -48,7 +48,7 @@ args = parser.parse_args()
 kmermergefile = args.SUNKs
 kmermerge = pd.read_csv(kmermergefile,sep="\t",header=None,names=['chrom','loc','kmer','ID'])# 
 kmermerge = kmermerge.drop_duplicates(subset='kmer')
-plotdir = args.plotdir
+plotdir = args.plotdir + "/"
 sunkposfile = args.sunkpos
 sunkposcat = pd.read_csv(sunkposfile,sep="\t",header=None,names=['rname','pos','chrom','start','ID'],dtype={'rname':'string','pos':'uint32','chrom':'category','start':'uint32','ID':'uint32'})# 
 
