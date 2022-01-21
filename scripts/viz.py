@@ -45,6 +45,12 @@ args = parser.parse_args()
 #ont=
 #hap=
 
+# import region bed
+regbedfile = args.bed
+bedreg = pd.read_csv(regbedfile, delimiter="\t",encoding='utf-8',header=None)
+header = ['chrom','start','end']
+bedreg.columns = header + [''] * (len(bedreg.columns) - len(header))
+
 kmermergefile = args.SUNKs
 kmermerge = pd.read_csv(kmermergefile,sep="\t",header=None,names=['chrom','loc','kmer','ID'])# 
 kmermerge = kmermerge.drop_duplicates(subset='kmer')
@@ -63,11 +69,6 @@ if opt_filter:
 # winnowmap depth input
 
 
-# import region bed
-regbedfile = args.bed
-bedreg = pd.read_csv(regbedfile, delimiter="\t",encoding='utf-8',header=None)
-header = ['chrom','start','end','orient','label']
-bedreg.columns = header + [''] * (len(bedreg.columns) - len(header))
 
 # LOOP OVER BED REGIONS
 for row in bedreg.itertuples():

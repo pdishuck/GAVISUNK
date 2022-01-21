@@ -35,6 +35,7 @@ rule define_SUNKs:
     "benchmarks/define_SUNKs.txt"
   shell:
     """
+    source {ENV}; set -eo pipefail;
     jellyfish count -m {config[SUNK_len]} -s 10000000 -t 32 -C -c 1 -U 1 {input.asm} -o {output.counts}
     jellyfish dump -c -t {output.counts}  | awk '{{print $1}}' > {output.db}
     awk '{{ print ">"$0"\\n"$0 }}' {output.db} > {output.fa}
@@ -53,6 +54,7 @@ rule mrsfast_index:
   # create softlinked ref in mrsfast folder
   shell:
     """
+    source {ENV}; set -eo pipefail;
     cd mrsfast && \
     ln -s -f {input.asm} ./ref.fa && \
     mrsfast --ws 14 --index  ./ref.fa
@@ -72,6 +74,7 @@ rule mrsfast_search:
     "benchmarks/mrsfast_search.txt"  
   shell:
     """
+    source {ENV}; set -eo pipefail;
     mrsfast --search mrsfast/ref.fa --threads 64 --mem 96 --seq {input.db} -o {output.sam} --disable-nohits -e 0 
     samtools sort -@ 64 -m 2G {output.sam} -T $TMPDIR -o {output.bam} 
     """
@@ -91,6 +94,7 @@ rule bed_convert:
     "benchmarks/bed_convert.txt"  
   shell:
     """
+    source {ENV}; set -eo pipefail;
     bedtools bamtobed -i {input.bam} > {output.bed} && \
     bedtools merge -i {output.bed} > {output.bedmerge} && \
     bedtools intersect -a {output.bed} -b {output.bedmerge} -wo | cut -f 1,2,4,8 > {output.locs}
@@ -115,6 +119,7 @@ rule SUNK_annot:
     "benchmarks/SUNK_annot_{sample}.txt",      
   shell:
     """
+    source {ENV}; set -eo pipefail;
     scripts/kmerpos_annot3 {input.ONT} {input.db} {input.locs} {output}
     """
 
@@ -132,6 +137,7 @@ rule read_lengths:
     "benchmarks/read_lengths_{sample}.txt",      
   shell:
     """
+    source {ENV}; set -eo pipefail;
     scripts/rlen {input.ONT} {output}
     """
 
