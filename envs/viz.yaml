@@ -7,6 +7,7 @@ channels:
 dependencies:
   - jellyfish==2.3.0
   - rustybam==0.1.29
+  - minimap2==2.24
   - networkx==2.6.3
   - graph-tool=2.43
   - python=3.8.6

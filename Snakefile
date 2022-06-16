@@ -5,12 +5,7 @@ import os
 configfile: "config.yaml"
 
 SNAKEMAKE_DIR = os.path.dirname(workflow.snakefile)
-#shell.prefix("source %s/env.cfg; " % (SNAKEMAKE_DIR))
 
-#config["temp"] = config.get("temp", "temp")
-#config["github"] = config.get("github", "")
-#config["genomeSize"] = config.get("genomeSize", "3g")
-#config["threads"] = config.get("threads", 40)
 
 MANIFEST = config["ONT_manifest"]
 BED = config['bed']
@@ -82,8 +77,6 @@ rule all:
     expand('results/{sample}/sunkpos/bad_sunks.txt', sample=manifest_df.index),
     expand("results/{sample}/breaks/{hap}_splits_pos.done",sample=manifest_df.index, hap=['hap1','hap2']),
     expand("results/{sample}/final_out/{hap}.bed", sample=manifest_df.index, hap=['hap1','hap2']), 
-#     expand("results/{sample}/align_to_ref/gene_beds/{sample}_{hap}_to_ref_{gene}.bed", gene='AC244197.3', sample=manifest_df.index, hap=['hap1'] ),
-#     expand("results/pngs/{gene}/{sample}/{sample}_{hap}.done", gene='AC244197.3', sample=manifest_df.index, hap=['hap1'])
 
 rule split_ONT: # accept FOFN
   input:
@@ -98,25 +91,9 @@ rule split_ONT: # accept FOFN
     "envs/viz.yaml"
   shell:
     """
-    module load rustybam/0.1.29
     zcat -f $(cat {input.reads} ) | seqtk seq -F '#' | rustybam fastq-split {output.reads}
     """
-# rule split_ONT:
-#   input:
-#     reads=getONT
-#   output:
-#     reads=temp(scatter.split("temp/{{sample}}/reads/{{hap}}_{scatteritem}.fq.gz")),
-#   resources:
-#     mem=2,
-#     load = 100
-#   threads: 8
-#   conda:
-#     "envs/viz.yaml"
-#   shell:
-#     """
-#     module load rustybam/0.1.27
-#     cat {input.reads} | seqtk seq -F '#' | rustybam fastq-split {output.reads}
-#     """
+
 rule combine_asm_haps:
   input:
     unpack(getParAsm)
@@ -126,8 +103,6 @@ rule combine_asm_haps:
     mem = 8,
     load = 100
   threads: 1
-  benchmark:
-    "benchmarks/combine_{sample}.txt"
   conda:
     "envs/viz.yaml"
   shell:
@@ -147,11 +122,8 @@ rule jellyfish_count:
   threads:32
   params:
     sunk_len = config["SUNK_len"]
-  benchmark:
-    "benchmarks/{sample}_jellyfish_count.txt"
   shell:
     """
-    module load jellyfish/2.3.0
     jellyfish count -m {params.sunk_len} -s 10000000 -t {threads} -C -c 1 -U 1 {input.asm} -o {output.counts}
     """
 
@@ -165,11 +137,8 @@ rule define_SUNKs:
     mem=1,
     load = 900
   threads: 32
-  benchmark:
-    "benchmarks/{sample}_jellyfish_db.txt"
   shell:
     """
-    module load jellyfish/2.3.0
     jellyfish dump -c -t {input.counts}  | awk '{{print $1}}' > {output.db}
     awk '{{ print ">"$0"\\n"$0 }}' {output.db} > {output.fa}
     """
@@ -183,8 +152,6 @@ rule mrsfast_index:
     mem=8, #1.1G used
     load = 100
   threads: 1
-  benchmark:
-    "benchmarks/mrsfast_index_{sample}.txt"
   conda:
     "envs/viz.yaml"     
   shell:
@@ -204,8 +171,7 @@ rule mrsfast_search:
       mem=2, #73 G VMS
       load=900
   threads: 32
-  benchmark:
-    "benchmarks/mrsfast_search_{sample}.txt"
+
   conda:
     "envs/viz.yaml"  
   shell:
@@ -226,8 +192,6 @@ rule bed_convert:
       mem=16,
       load=100,
   threads: 2
-  benchmark:
-    "benchmarks/{sample}_bed_convert.txt"
   conda:
     "envs/viz.yaml"  
   shell:
@@ -247,9 +211,7 @@ rule SUNK_annot:
   resources:
       mem=8,
       load=100
-  threads: 2
-  benchmark:
-    "benchmarks/SUNK_annot_{sample}_{hap}_{scatteritem}.txt",      
+  threads: 2    
   shell:
     """
     scripts/kmerpos_annot3 {input.ONT} {input.db} {input.locs} {output}
@@ -263,9 +225,7 @@ rule read_lengths:
   resources:
       mem=8,
       load=100
-  threads: 2
-  benchmark:
-    "benchmarks/read_lengths_{sample}_{hap}_{scatteritem}.txt",      
+  threads: 2   
   shell:
     """
     scripts/rlen {input.ONT} {output}
@@ -281,8 +241,6 @@ rule diag_filter_step:
     mem=8,
     load=100
   threads: 1
-  benchmark:
-    "benchmarks/diag_filter_step_{sample}_{hap}_{scatteritem}.txt"
   shell:
     """
     scripts/diag_filter_v3 {input.ONT_pos} {input.fai} > {output.ONT_pos_diag}
@@ -298,8 +256,6 @@ rule diag_filter_final:
     mem=8,
     load=100
   threads: 1
-  benchmark:
-    "benchmarks/diag_filter_final_{sample}_{hap}_{scatteritem}.txt"
   shell:
     """
     scripts/diag_filter_step2 {input.ONT_pos} {input.ONT_pos_diag} > {output.ONT_pos_diag_final}
@@ -316,8 +272,6 @@ rule combine_ont:
     mem=8,
     load=100
   threads: 1
-  benchmark:
-    "benchmarks/combine_ont_{sample}_{hap}.txt"
   shell:
     """
     cat {input.gather_ONT_pos} > {output.ONT_pos}
@@ -468,12 +422,3 @@ rule viz_contigs:
     '''
     python scripts/viz_AR.py {input.bed} {input.rlen} $(dirname {output.flag_gene}) $(dirname {input.interout[0]}) $(dirname {input.pos_locs}) $(dirname {input.pos_locs}) {wildcards.sample} {wildcards.hap} 
     '''
-
-#rule aggregate_final:
-#  input:
-#    viz_flag = getViz
-#  output:
-#    flag = touch('results/pngs/{sample}_{hap}.done')
-#  resources:
-#    mem=8,
-#    load=100
