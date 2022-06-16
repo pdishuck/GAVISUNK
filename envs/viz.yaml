@@ -1,10 +1,12 @@
 name: viz
 channels:
+  - bioconda
   - anaconda
   - conda-forge
-  - bioconda
   - defaults
 dependencies:
+  - jellyfish==2.3.0
+  - rustybam==0.1.29
   - networkx==2.6.3
   - graph-tool=2.43
   - python=3.8.6
@@ -12,4 +14,10 @@ dependencies:
   - numpy=1.20.1
   - pandas=1.3.4
   - matplotlib=3.3.4
-  - seaborn=0.11.1  
+  - seaborn=0.11.1
+  - htslib>=1.12
+  - samtools>=1.12
+  - bedtools>=2.30.0
+  - seqtk
+  - mrsfast>=3.4.2
+  - ncls=0.0.64
