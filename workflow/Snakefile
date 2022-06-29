@@ -1,0 +1,41 @@
+# tested with Snakemake v6.7.0
+import pandas as pd
+import os
+
+configfile: "config/config.yaml"
+
+SNAKEMAKE_DIR = os.path.dirname(workflow.snakefile)
+
+
+MANIFEST = config["ONT_manifest"]
+BED = config['bed']
+
+manifest_df = pd.read_csv(MANIFEST, sep='\t', header=0, index_col='sample')
+bed_df = pd.read_csv(BED, sep='\t', header=None, names=['contig','start','stop','gene'])
+bed_df.set_index(['gene'], inplace=True, drop=True)
+
+scattergather:
+    split=config.get("nchunks", 10),
+
+wildcard_constraints:
+    hap="hap1|hap2"
+
+include: "rules/defineSUNKs.smk"
+include: "rules/tagONT.smk"
+include: "rules/genImages.smk"
+include: "rules/gatherSplits.smk"
+
+
+rule all:
+  input: 
+    expand('results/{sample}/sunkpos/{hap}.sunkpos', sample=manifest_df.index, hap=['hap1','hap2']),
+    expand('results/{sample}/sunkpos/{hap}.rlen', sample=manifest_df.index, hap=['hap1','hap2']),
+    expand('results/{sample}/sunkpos/bad_sunks.txt', sample=manifest_df.index),
+    expand("results/{sample}/breaks/{hap}_splits_pos.done",sample=manifest_df.index, hap=['hap1','hap2']),
+    expand("results/{sample}/final_out/{hap}.bed", sample=manifest_df.index, hap=['hap1','hap2']), 
+
+
+
+
+
+
