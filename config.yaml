@@ -1,3 +1,0 @@
-ONT_manifest: "ont.tsv"
-SUNK_len: 20
-bed: {bed_of_regions_to_visualize}
