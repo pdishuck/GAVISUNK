@@ -1,4 +1,3 @@
-include: "gatherSplits.smk"
 rule align_to_ref:
   input:
     fasta = lambda wildcards: manifest_df.at[wildcards.sample, f"{wildcards.hap}_asm"],
