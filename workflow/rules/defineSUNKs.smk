@@ -1,4 +1,3 @@
-include: "gatherSplits.smk"
 rule combine_asm_haps:
   input:
     hap1_asm = lambda wildcards: manifest_df.at[wildcards.sample, "hap1_asm"],
