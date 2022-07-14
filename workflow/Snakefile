@@ -28,7 +28,7 @@ wildcard_constraints:
 include: "rules/defineSUNKs.smk"
 include: "rules/tagONT.smk"
 include: "rules/genImages.smk"
-include: "rules/gatherSplits.smk"
+# include: "rules/gatherSplits.smk"
 
 
 rule all:

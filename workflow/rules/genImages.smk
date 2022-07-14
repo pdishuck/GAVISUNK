@@ -1,4 +1,3 @@
-include: "gatherSplits.smk"
 rule align_to_ref:
   input:
     fasta = lambda wildcards: manifest_df.at[wildcards.sample, f"{wildcards.hap}_asm"],
@@ -112,15 +111,3 @@ rule generate_images:
   input:
     [expand('results/pngs/{gene}/{sample}/{sample}_{hap}.done', gene=gene, sample=manifest_df.index, hap=['hap1', 'hap2']) for gene in bed_df.index],
     [expand('results/pngs/{sample}/{sample}_hap1.done', sample=manifest_df.loc[~ pd.isnull(manifest_df[f'{i}_bed'])].index, hap=i) for i in ['hap1','hap2']]
-
-
-
-
-
-
-
-
-
-
-
-

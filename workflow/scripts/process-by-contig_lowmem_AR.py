@@ -27,7 +27,6 @@ from matplotlib import (pyplot as plt,
 import matplotlib.ticker as mtick
 import argparse
 
-print(pd.__version__)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -62,7 +61,6 @@ def main():
 
     contig = sunkposcat['chrom'].unique().tolist()[0]
 
-    #print(contig)
 
 
 
@@ -71,9 +69,7 @@ def main():
         badsunkin = set(f.read().splitlines())
     sunkposcat['ID2'] = sunkposcat['chrom'].astype(str) +":"+ sunkposcat['ID'].astype(str)
 
-    print("sunkposcat len: ", len(sunkposcat))
     sunkposcat = sunkposcat.query("ID2 not in @badsunkin")
-    print("sunkposcat len: ", len(sunkposcat))
 
 
     # contig = row.chrom
@@ -84,18 +80,16 @@ def main():
 
     # contig = 'chr20'
     kmer_groups = kmermerge.drop_duplicates(subset='ID') #  
+    pd.options.mode.chained_assignment = None  # default='warn
     kmer_groups['dist'] = kmer_groups.ID.diff().fillna(kmer_groups.ID).astype(int) #rows)
 
-    print("processing " + str(contig))
     # contig = bedreg1['chrom'].values[0]
     # xmin = bedreg1['start'].values[0]
     # xmax = bedreg1['end'].values[0]
 
     #Filter 1: only keep reads with at least two SUNKs within target region
     multisunk = sunkposcat.groupby('rname',as_index=False).agg({'ID':'nunique'}).sort_values(by='ID').query('ID > 1')
-    print("Filter 1 multisunk len: ", len(multisunk))
     if len(multisunk) == 0:
-      print("No viable reads for this region: "+str(contig))
       pd.DataFrame(list([contig])).to_csv(ofile,header=False,sep="\t",index=False)
       exit()
     #   continue
@@ -105,9 +99,6 @@ def main():
     ### RESTRICT TO REGION
     sunkpos3 = sunkposcat.query('rname in @multisunkset ').sort_values(by=['rname','start']) # reads with multiple SUNK group matches # & start >= @xmin & start <= @xmax
     #         sunkpos3 = sunkpos2.drop_duplicates(subset=['rname','ID'],keep='first') # one representation per read * SUNK group # done in kmerpos_annot script
-    print(len(sunkpos3))
-    print(len(pd.unique(sunkpos3.rname)))
-    print(len(pd.unique(sunkposcat.rname)))
 
 
     sunkpos3b = sunkpos3.drop_duplicates()
@@ -128,14 +119,12 @@ def main():
     ### keeep pos
     start = timeit.default_timer()
 
-    print(len(sub))
     sub['start'] = sub['start'].astype('int64')
     sub['pos'] = sub['pos'].astype('int64')
 
     # rnamelist = list(pd.unique(distdf2.rname))
     # rnamelist = ['00060b17-6288-4b65-a67e-93e7498e0633']
     # rnamelist = ['fffdf958-07a2-4bc1-95aa-7c6b05cc70c6']
-    print("rnamelist len: ", len(pd.unique(sub.rname)))
     outputs= []
     counter=0
     subgraphs=[]
@@ -153,8 +142,8 @@ def main():
         signarray = pdist(g[['pos']], lambda u,v: u[0]>v[0] )
         idarray = list(it.combinations(g['ID'],2))
         locarray = list(it.combinations(g['pos'],2)) # keep track of ID-Pos corresponence
-    
-        diffarray = posarray/startarray
+        with np.errstate(divide='ignore'): # kmers occasionally seen in multiple locations on same read 
+            diffarray = posarray/startarray
         mask = np.logical_not((diffarray >= 1.1) + (diffarray <= 0.9))
         if sum(mask) < 1: continue
         # only calculate on masked version (distdf2 equiv)
@@ -205,22 +194,18 @@ def main():
     
         glarge.vp.name.get_array()
         df=pd.DataFrame(g.vp.name.get_array()[glarge.get_vertices()],columns=['ID'])
-    #     print("num of SUNKs: ", len(df))
         df['rname'] = rname
         outputs.append(df)
         end=timeit.default_timer()
         times.append(end-start)
-        if counter % 100000 == 0: print(counter,rname,end-start)
 
     if len(outputs) == 0:
-      print("No good reads for this contig: "+str(contig))
       pd.DataFrame(list([contig])).to_csv(ofile,header=False,sep="\t",index=False)
       exit()
     else: 
       outputsdf = pd.concat(outputs)
       outputsdf.to_csv(ofile,header=False,sep="\t",index=False)
     end2=timeit.default_timer()
-    print('overall time: ',end2-start2)
 
 
 
@@ -234,12 +219,10 @@ def main():
     idarray = pd.DataFrame(outputsdf.groupby("rname").apply(lambda g: list(it.combinations(g['ID'],2)))).explode([0])
     end = timeit.default_timer()
     graphtimes.append(end)
-    print(start-end)
     idarray.rename(columns={0:'IDs',},inplace=True)
     idarray[['ID', 'ID2']] = pd.DataFrame(idarray['IDs'].tolist(), index=idarray.index)
     graphtimes=[]
     end = timeit.default_timer()
-    print(start-end)
     graphtimes.append(end)
 
     g = gt.Graph(directed=False)
@@ -248,18 +231,15 @@ def main():
     g.vp.name = name
 
     end = timeit.default_timer()
-    print(start-end)
     graphtimes.append(end)
 
     # glarge = gt.topology.extract_largest_component(g)
     c = gt.topology.label_components(g)[0]
 
     end = timeit.default_timer()
-    print(start-end)
     graphtimes.append(end)
 
 
-    print("confirmed regions")
     regions = []
     for s in list(pd.unique(c.a)):
         color='lightgray'
@@ -269,7 +249,6 @@ def main():
         start = int(sunks.min())
         end = int(sunks.max())
         span = end-start
-        print(start,end,span,len(sunks))
         regions.append((start,end,span,len(sunks)))
     #     ax.plot([start,end],[rownum+offset,rownum+offset],color=color,linewidth=9,solid_capstyle='butt',zorder=1)    
         end = timeit.default_timer()
