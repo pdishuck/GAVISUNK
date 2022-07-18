@@ -80,8 +80,8 @@ rule viz_contigs_ref:
   threads: 2
   conda:
     "../envs/viz.yaml"
-  #log:
-  #  "logs/{sample}/{gene}_{hap}_viz_contigs.log"
+  log:
+    "logs/{sample}/{gene}_{hap}_viz_contigs.log"
   shell:
     '''
     python workflow/scripts/viz_AR.py {input.bed} {input.rlen} $(dirname {output.flag_gene}) $(dirname {input.interout}) $(dirname {input.pos_locs}) $(dirname {input.pos_locs}) {wildcards.sample} {wildcards.hap} 
@@ -101,8 +101,8 @@ rule viz_contigs_sample:
   threads: 2
   conda:
     "../envs/viz.yaml"
-#  log:
-#    "logs/{sample}_{hap}_viz_contigs.log"
+  log:
+    "logs/{sample}_{hap}_viz_contigs.log"
   shell:
     '''
     python workflow/scripts/viz_AR.py {input.bed} {input.rlen} $(dirname {output.flag_samp}) $(dirname {input.interout}) $(dirname {input.pos_locs}) $(dirname {input.pos_locs}) {wildcards.sample} {wildcards.hap}
