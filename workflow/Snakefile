@@ -8,11 +8,16 @@ SNAKEMAKE_DIR = os.path.dirname(workflow.snakefile)
 
 
 MANIFEST = config["ONT_manifest"]
-BED = config['bed']
+BED = config.get('ref_bed','')
+REF = config.get('ref','')
+
 
 manifest_df = pd.read_csv(MANIFEST, sep='\t', header=0, index_col='sample')
-bed_df = pd.read_csv(BED, sep='\t', header=None, names=['contig','start','stop','gene'])
-bed_df.set_index(['gene'], inplace=True, drop=True)
+if BED == '':
+  bed_df = pd.DataFrame()
+else: 
+  bed_df = pd.read_csv(BED, sep='\t', header=None, names=['contig','start','stop','gene'])
+  bed_df.set_index(['gene'], inplace=True, drop=True)
 
 scattergather:
     split=config.get("nchunks", 10),
