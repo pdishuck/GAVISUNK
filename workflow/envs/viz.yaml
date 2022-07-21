@@ -5,10 +5,10 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - kmer-jellyfish==2.3.0
-  - rustybam==0.1.29
-  - minimap2==2.24
-  - networkx==2.6.3
+  - kmer-jellyfish=2.3.0
+  - rustybam=0.1.29
+  - minimap2=2.24
+  - networkx=2.6.3
   - graph-tool=2.43
   - python=3.8.6
   - scipy=1.6.0
@@ -16,9 +16,10 @@ dependencies:
   - pandas=1.3.4
   - matplotlib=3.3.4
   - seaborn=0.11.1
-  - htslib>=1.12
-  - samtools>=1.12
-  - bedtools>=2.30.0
+  - htslib=1.15.1
+  - samtools=1.15.1
+  - bedtools=2.30.0
   - seqtk
-  - mrsfast>=3.4.2
-  - ncls=0.0.64
+  - mrsfast=3.4.2
+  - pyranges
+  - ncls>=0.0.64
