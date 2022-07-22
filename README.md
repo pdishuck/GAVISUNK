@@ -16,7 +16,21 @@ The ONT manifest is a .tsv file "ont.tsv" with the following columns:
 
 I recommend a single input file for each haplotype, and to haplotype phase with canu and parental illumina (not currently incorporated into this pipeline)
 
-Run snakefile locally 
+Prerequisites: Snakemake (tested with versions 6.12.1, 7.8.2)
+
+To run snakefile locally on the provided test cases (AMY locus of CHM13/1 pseudodiploid and HG02723), generating optional image outputs, clone this repo and execute:
+```
+snakemake -R generate_images --use-conda --cores 8 --configfile .test/config.yaml
+```
+
+.BED results are found in the `results/[sample]/final_outs` directory
+
+Automated visualizations of validation gaps are found in the `results/gaps/[sample] directory
+
+For the included test cases, the following output should be generated: `results/gaps/AMY_HG02723/AMY_HG02723_hap1_AMY_h1_84861_524275.png`, corresponding to Figure 1 of the manuscript:
+
+
+
 
 Troubleshooting tips: 
 To get snakemake conda envs to work correctly, you may need to deactivate your local conda env ($PATH issues as in https://github.com/snakemake/snakemake/issues/883)
