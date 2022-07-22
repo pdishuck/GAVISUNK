@@ -24,6 +24,8 @@ parser.add_argument("sampname")
 parser.add_argument("hap")
 parser.add_argument("--minlen", help="minimum length filter for reads to visualize",default=10000,type=int)
 parser.add_argument("--opt_filt", help="apply optional filter",action='store_true')
+parser.add_argument("--colorbed", help="color track for output")
+
 
 
 args = parser.parse_args()
@@ -45,34 +47,57 @@ bedreg1['chrom'].value_counts()
 contigs = list(bedreg1['chrom'].value_counts().index)
 print(len(contigs))
 
+if args.colorbed is not None:
+    dm = pd.read_csv(args.colorbed, delim_whitespace=True, names=['chr','chrStart','chrEnd','color'], header=None,dtype = {'chr':'string','chrStart':'int','chrEnd':'int','color':'string'})
+    dm = dm[dm.chrStart >= 0]
+    dm["y"] = 1
+    dm["func"] = ""
+    
 for contig in contigs:
     cont2 = contig.replace("#","_")
+    print(contig)
+    
     bedreg= bedreg1.query('chrom == @contig')
-    try: outputsdf= pd.read_csv(args.interoutdir + "/" + cont2 + "_" + args.hap + ".tsv" ,sep="\t",names=['ID','rname'])
+    try: outputsdf= pd.read_csv(args.interoutdir + "/" + cont2 + "_" + args.hap + ".tsv" ,sep="\t",names=['ID','rname'],dtype = {'ID':'int','rname':'string'})
     except:
         print("outputsdf not found for", contig)
-        continue
+    #     continue
     outputsdf.set_index("rname",inplace=True,drop=True)
     if len(outputsdf) <2:
         print("NO READS FOR", contig)
-        continue
+    #     continue
+
     kmermergefile = args.locsdir +"/"+ cont2 + "_" + args.hap + ".loc"
     kmermerge = pd.read_csv(kmermergefile,sep="\t",header=None,names=['chrom','loc','kmer','ID'])# this could be split too
     kmermerge = kmermerge.drop_duplicates(subset='kmer')
     plotdir = args.plotdir + "/"
     sunkposfile = args.posdir+"/"+ cont2 + "_" + args.hap + ".sunkpos"
     sunkposcat = pd.read_csv(sunkposfile,sep="\t",header=None,names=['rname','pos','chrom','start','ID'],dtype={'rname':'string','pos':'int64','chrom':'category','start':'int64','ID':'int64'})
+
+
     kmermerge['ID2'] = kmermerge['chrom'].astype(str) +":"+ kmermerge['ID'].astype(str)
+    
     sunkposcat['ID2'] = sunkposcat['chrom'].astype(str) +":"+ sunkposcat['ID'].astype(str)
+    
     print("sunkposcat len: ", len(sunkposcat))
-    kmer_groups = kmermerge.drop_duplicates(subset='ID')
-    kmer_groups['dist'] = kmer_groups.ID.diff().fillna(kmer_groups.ID).astype(int)
+    #     sunkposcat = sunkposcat.query("ID2 not in @badsunkin")
+    #     print("sunkposcat len: ", len(sunkposcat))    
+    
+    
+    kmer_groups = kmermerge.drop_duplicates(subset='ID') #  
+    kmer_groups['dist'] = kmer_groups.ID.diff().fillna(kmer_groups.ID).astype(int) #rows)
+    
     multisunk = sunkposcat.groupby('rname',as_index=False).agg({'ID':'nunique'}).sort_values(by='ID').query('ID > 1')
     print("Filter 1 multisunk len: ", len(multisunk))
     if len(multisunk) == 0:
-        print("No viable reads for this region: "+str(contig)+"_"+str(regstart)+"_"+str(regend))
+      print("No viable reads for this region: "+str(contig)+"_"+str(regstart)+"_"+str(regend))
+    #   continue
+    
     multisunkset = set(multisunk.rname.tolist())
-    sunkpos3 = sunkposcat.query('rname in @multisunkset ').sort_values(by=['rname','start'])
+    
+    ### RESTRICT TO REGION
+    sunkpos3 = sunkposcat.query('rname in @multisunkset ').sort_values(by=['rname','start']) # reads with multiple SUNK group matches # & start >= @xmin & start <= @xmax
+    #         sunkpos3 = sunkpos2.drop_duplicates(subset=['rname','ID'],keep='first') # one representation per read * SUNK group # done in kmerpos_annot script
     print(len(sunkpos3))
     print(len(pd.unique(sunkpos3.rname)))
     print(len(pd.unique(sunkposcat.rname)))
@@ -152,6 +177,14 @@ for contig in contigs:
             tick = [Rectangle((x, r), 1, 0.7)  for x in poss[i]]
             ticks = ticks + tick
         never_seen3 = [x for x in never_seen2 if not ((x<constart) | (x>conend))]
+
+        if args.colorbed is not None:
+            patches2=[]
+            for r in dm[['chrStart','chrEnd','color','chr']].query('chr==@contig & chrEnd > @xmin & chrStart < @xmax ').itertuples():
+                polygon = Polygon([[r[1],-4],[r[1],-5],[r[2],-5],[r[2],-4]], True, color=r[3],alpha=1)
+                patches2.append(polygon)
+            p = PatchCollection(patches2, alpha=1, match_original=True)
+            ax.add_collection(p)
         ax.add_collection(PatchCollection(patches,color='lightgray',zorder=1,aa=True,edgecolor='w',linewidth=0.01))
         ax.add_collection(PatchCollection(ticks,color='k',zorder=7,linewidth=0.5,edgecolor='k',aa=True))
         ax.scatter(x=never_seen3,y=[-2.5]*len(never_seen3),color='k',s=55,marker="|",facecolors=None,linewidths=0.4,zorder=2)
@@ -164,5 +197,7 @@ for contig in contigs:
         plt.rcParams['svg.fonttype'] = 'none'
         print(args.plotdir + "/" + args.sampname +"_" + args.hap + "_" +cont2+"_"+str(regstart)+"_"+str(regend)+".svg")
         plt.savefig(args.plotdir + "/" + args.sampname +"_" + args.hap + "_" +cont2+"_"+str(regstart)+"_"+str(regend)+".svg",format="svg",pad_inches=0,bbox_inches='tight')
+        plt.savefig(args.plotdir + "/" + args.sampname +"_" + args.hap + "_" +cont2+"_"+str(regstart)+"_"+str(regend)+".png",pad_inches=0,bbox_inches='tight',dpi=300)
+        plt.savefig(args.plotdir + "/" + args.sampname +"_" + args.hap + "_" +cont2+"_"+str(regstart)+"_"+str(regend)+".pdf",pad_inches=0,bbox_inches='tight')
         plt.close()
         print("Plotting complete for " +contig+"_"+str(regstart)+"_"+str(regend))

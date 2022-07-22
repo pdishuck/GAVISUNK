@@ -1,2 +1,3 @@
 sample	hap1_ONT	hap2_ONT	hap1_asm	hap2_asm	hap1_bed	hap2_bed
-AMY_test	.test/data/AMY_hap1.ONT.fa.gz	.test/data/AMY_hap2.ONT.fa.gz	.test/data/AMY.hap1.fa.gz	.test/data/AMY.hap2.fa.gz	.test/data/AMY_samp.bed	NULL
+AMY_pseudodip	.test/data/AMY_hap1.ONT.fa.gz	.test/data/AMY_hap2.ONT.fa.gz	.test/data/AMY.hap1.fa.gz	.test/data/AMY.hap2.fa.gz	.test/data/AMY_samp.bed	NULL
+AMY_HG02723	.test/data/HG02723/h1.ONT.fa	.test/data/HG02723/h2.ONT.fa	.test/data/HG02723/h1.fa	.test/data/HG02723/h2.fa	.test/data/HG02723/h1.bed	.test/data/HG02723/h2.bed
