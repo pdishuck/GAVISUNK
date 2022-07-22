@@ -32,8 +32,12 @@ parser.add_argument("--gapbed", help="bed file of validation gaps")
 args = parser.parse_args()
 
 regbedfile = args.bed
+if os.stat(regbedfile).st_size == 0:
+    print("empty gap file")
+    exit()
+
 bedreg1 = pd.read_csv(regbedfile, delimiter="\t",encoding='utf-8',header=None)
-header = ['chrom','start','end','name']
+header = ['chrom','start','end']
 bedreg1.columns = header + [''] * (len(bedreg1.columns) - len(header))  
 
 lendf = pd.read_csv(args.rlen,sep="\t",header=None,names=['rname','len'],dtype={'rname':'string','len':'uint32'})
@@ -48,9 +52,12 @@ bedreg1['chrom'].value_counts()
 contigs = list(bedreg1['chrom'].value_counts().index)
 print(len(contigs))
 
-if args.gapbed is not None:
-    gapbed = pd.read_csv(args.colorbed, delim_whitespace=True, names=['chr','chrStart','chrEnd','color'], header=None,dtype = {'chr':'string','chrStart':'int','chrEnd':'int','color':'string'})
 
+
+if args.gapbed is not None:
+    gapbed = pd.read_csv(args.gapbed, delim_whitespace=True, names=['chr','chrStart','chrEnd','color'], header=None,dtype = {'chr':'string','chrStart':'int','chrEnd':'int','color':'string'})
+
+if args.colorbed=="NULL": args.colorbed = None
 if args.colorbed is not None:
     dm = pd.read_csv(args.colorbed, delim_whitespace=True, names=['chr','chrStart','chrEnd','color'], header=None,dtype = {'chr':'string','chrStart':'int','chrEnd':'int','color':'string'})
     dm = dm[dm.chrStart >= 0]

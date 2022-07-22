@@ -67,8 +67,8 @@ def main():
         allbreaks[x] = breaks
     print("breaks: ", len(outbreaks), bp1)
     print("no data: ", len(nodata), bp2)
-    pd.DataFrame(nodata).to_csv(outdir + samp + "_hap1.nodata.bed",header=False,sep="\t",index=False)
-    pd.DataFrame(outbreaks).to_csv(outdir + samp + "_hap1.breaks.bed",header=False,sep="\t",index=False)
+    pd.DataFrame(nodata).to_csv(outdir + "hap1.nodata.bed",header=False,sep="\t",index=False)
+    pd.DataFrame(outbreaks).to_csv(outdir + "hap1.gaps.bed",header=False,sep="\t",index=False)
 
     fai = pd.read_csv(args.fai2,sep='\t',header=None,names=['contig','length','cumlen','3','4'])
     contigs = fai.contig.tolist()
@@ -118,6 +118,6 @@ def main():
         allbreaks[x] = breaks
     print("breaks: ", len(outbreaks), bp1)
     print("no data: ", len(nodata), bp2)
-    pd.DataFrame(nodata).to_csv(outdir + samp + "_hap2.nodata.bed",header=False,sep="\t",index=False)
-    pd.DataFrame(outbreaks).to_csv(outdir + samp + "_hap2.breaks.bed",header=False,sep="\t",index=False)
+    pd.DataFrame(nodata).to_csv(outdir + "hap2.nodata.bed",header=False,sep="\t",index=False)
+    pd.DataFrame(outbreaks).to_csv(outdir + "hap2.gaps.bed",header=False,sep="\t",index=False)
 main()

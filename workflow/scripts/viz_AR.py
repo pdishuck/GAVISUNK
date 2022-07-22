@@ -46,7 +46,7 @@ if opt_filter:
 bedreg1['chrom'].value_counts()
 contigs = list(bedreg1['chrom'].value_counts().index)
 print(len(contigs))
-
+if args.colorbed == "NULL": args.colorbed = None
 if args.colorbed is not None:
     dm = pd.read_csv(args.colorbed, delim_whitespace=True, names=['chr','chrStart','chrEnd','color'], header=None,dtype = {'chr':'string','chrStart':'int','chrEnd':'int','color':'string'})
     dm = dm[dm.chrStart >= 0]

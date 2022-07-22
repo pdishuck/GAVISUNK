@@ -61,7 +61,7 @@ rule subset_bed:
 
 rule confirm_out:
   input:
-    final_bed = expand("results/{sample}/final_out/{hap}.bed", sample=manifest_df.index, hap=['hap1','hap2']),
+    final_bed = expand("results/{sample}/final_out/{hap}.valid.bed", sample=manifest_df.index, hap=['hap1','hap2']),
     interout = getInterOut,
   output:
     touch("results/{sample}/inter_outs/{hap}.done")
@@ -90,6 +90,7 @@ rule viz_contigs_ref:
 rule viz_contigs_sample:
   input:
     bed = lambda wildcards: manifest_df.at[wildcards.sample, f'{wildcards.hap}_bed'],
+    colorbed = lambda wildcards: manifest_df.at[wildcards.sample, f'{wildcards.hap}_colortrack'],
     rlen = rules.combine_ont.output.ONT_len,
     interout = rules.confirm_out.output,
     pos_locs = rules.split_sunkpos.output.flag
@@ -105,9 +106,35 @@ rule viz_contigs_sample:
     "logs/{sample}_{hap}_viz_contigs.log"
   shell:
     '''
-    python workflow/scripts/viz_AR.py {input.bed} {input.rlen} $(dirname {output.flag_samp}) $(dirname {input.interout}) $(dirname {input.pos_locs}) $(dirname {input.pos_locs}) {wildcards.sample} {wildcards.hap}
+    python workflow/scripts/viz_AR.py {input.bed} {input.rlen} $(dirname {output.flag_samp}) $(dirname {input.interout}) $(dirname {input.pos_locs}) $(dirname {input.pos_locs}) {wildcards.sample} {wildcards.hap} --colorbed {input.colorbed}
     '''
+
+rule viz_contig_gaps:
+  input:
+    bed = "results/{sample}/final_out/{hap}.gaps.slop.bed",
+#     bed = rules.slop_gaps.output,
+    colorbed = lambda wildcards: manifest_df.at[wildcards.sample, f'{wildcards.hap}_colortrack'],
+    rlen = rules.combine_ont.output.ONT_len,
+    interout = rules.confirm_out.output,
+    pos_locs = rules.split_sunkpos.output.flag,
+  output:
+    flag_samp = touch('results/gaps/{sample}/{sample}_{hap}.done'),
+  resources:
+    mem = 160,
+    load = 200,
+  threads: 2,
+  conda:
+    "../envs/viz.yaml",
+  log:
+    "logs/{sample}_{hap}_viz_gaps.log",
+  shell:
+    '''
+    python workflow/scripts/viz_gaps.py {input.bed} {input.rlen} $(dirname {output.flag_samp}) $(dirname {input.interout}) $(dirname {input.pos_locs}) $(dirname {input.pos_locs}) {wildcards.sample} {wildcards.hap} --colorbed {input.colorbed}
+    '''
+
 rule generate_images:
   input:
     [expand('results/pngs/{gene}/{sample}/{sample}_{hap}.done', gene=gene, sample=manifest_df.index, hap=['hap1', 'hap2']) for gene in bed_df.index],
-    [expand('results/pngs/{sample}/{sample}_hap1.done', sample=manifest_df.loc[~ pd.isnull(manifest_df[f'{i}_bed'])].index, hap=i) for i in ['hap1','hap2']]
+    [expand('results/pngs/{sample}/{sample}_{hap}.done', sample=manifest_df.loc[~ pd.isnull(manifest_df[f'{i}_bed'])].index, hap=i) for i in ['hap1','hap2']],
+    [expand('results/gaps/{sample}/{sample}_{hap}.done', sample=manifest_df.loc[~ pd.isnull(manifest_df[f'{i}_bed'])].index, hap=i) for i in ['hap1','hap2']],
+#    [expand('results/gaps/{sample}/{sample}_{hap}.done', sample=manifest_df.index, hap=i) for i in ['hap1','hap2']],

@@ -144,7 +144,7 @@ checkpoint split_sunkpos:
   conda:
     "../envs/viz.yaml"
   log:
-    "log/{sample}/{hap}_split_sunkpos.log"
+    "logs/{sample}/{hap}_split_sunkpos.log"
   script:
     "../scripts/split_locs.py"
  
@@ -176,7 +176,7 @@ rule gather_process_by_contig:
     bed = gatherAsmBeds,
     flag = rules.split_sunkpos.output.flag
   output:
-    allbeds = "results/{sample}/final_out/{hap}.bed"
+    allbeds = "results/{sample}/final_out/{hap}.valid.bed"
   resources:
     mem=8,
     load=100
@@ -188,3 +188,45 @@ rule gather_process_by_contig:
     '''
     cat {input.bed} > {output.allbeds}
     '''
+
+rule get_gaps:
+  input:
+    hap1_fai = lambda wildcards: manifest_df.at[wildcards.sample, "hap1_asm"]+".fai",
+    hap2_fai = lambda wildcards: manifest_df.at[wildcards.sample, "hap2_asm"]+".fai",
+    allbeds_hap1 = "results/{sample}/final_out/hap1.valid.bed",
+    allbeds_hap2 = "results/{sample}/final_out/hap2.valid.bed",
+  output:
+    gaps1 = "results/{sample}/final_out/hap1.gaps.bed",
+    gaps2 = "results/{sample}/final_out/hap2.gaps.bed",
+  resources:
+    mem=10,
+    load=100
+  threads: 1
+  conda:
+    "../envs/viz.yaml"
+  log:
+    "logs/{sample}/get_gaps.log"
+  shell:
+    """
+    python workflow/scripts/get_gaps.py {input.hap1_fai} {input.hap2_fai}  {wildcards.sample} results/{wildcards.sample}/bed_files/  results/{wildcards.sample}/final_out/
+    """
+
+rule slop_gaps:
+  input:
+    gaps = "results/{sample}/final_out/{hap}.gaps.bed",
+    fai =  lambda wildcards: manifest_df.at[wildcards.sample,f"{wildcards.hap}_asm"]+".fai"
+  output:
+    gaps_slop = "results/{sample}/final_out/{hap}.gaps.slop.bed",
+  resources:
+    mem=10,
+    load=100
+  threads: 1
+  conda:
+    "../envs/viz.yaml"
+  log:
+    "logs/{sample}/get_gaps_{hap}.log"
+  shell:
+    """
+    bedtools slop -i {input.gaps} -g {input.fai}  -b 200000 > {output.gaps_slop}
+    """
+

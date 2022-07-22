@@ -37,10 +37,7 @@ rule all:
     expand('results/{sample}/sunkpos/{hap}.rlen', sample=manifest_df.index, hap=['hap1','hap2']),
     expand('results/{sample}/sunkpos/bad_sunks.txt', sample=manifest_df.index),
     expand("results/{sample}/breaks/{hap}_splits_pos.done",sample=manifest_df.index, hap=['hap1','hap2']),
-    expand("results/{sample}/final_out/{hap}.bed", sample=manifest_df.index, hap=['hap1','hap2']), 
-
-
-
-
-
+    expand("results/{sample}/final_out/{hap}.valid.bed", sample=manifest_df.index, hap=['hap1','hap2']), 
+    expand("results/{sample}/final_out/{hap}.gaps.bed", sample=manifest_df.index, hap=['hap1','hap2']),
+    expand("results/{sample}/final_out/{hap}.gaps.slop.bed", sample=manifest_df.index, hap=['hap1','hap2']),
 
