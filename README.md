@@ -12,6 +12,8 @@ The ONT manifest is a .tsv file "ont.tsv" with the following columns:
 - sample: must be unique for each file
 - hap[1,2]\_ONT : location of ONT reads (gzipped or raw .fa or .fq)
 - hap[1,2]\_asm : location of haplotype assembly (FASTA)
+- hap[1,2]\_bed : BED format regions of assembly to visualize (optional) 
+- hap[1,2]\_colotrack : BED format color track to include in visualizations (optional) 
 - hap[1,2]\_paf : PAF format alignment of haplotype to reference (optional)
 
 I recommend a single input file for each haplotype, and to haplotype phase with canu and parental illumina (not currently incorporated into this pipeline)
