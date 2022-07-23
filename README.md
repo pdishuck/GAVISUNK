@@ -27,7 +27,7 @@ snakemake -R generate_images --use-conda --cores 8 --configfile .test/config.yam
 
 Automated visualizations of validation gaps are found in the `results/gaps/[sample] directory
 
-For the included test cases, the following output should be generated: `results/gaps/AMY_HG02723/AMY_HG02723_hap1_AMY_h1_84861_524275.png`, corresponding to Figure 1 of the manuscript:
+For the included test cases, the following output should be generated: `results/gaps/AMY_HG02723/AMY_HG02723_hap1_AMY_h1_84861_524275.png`, corresponding to the region displayed in Figure 1 of the manuscript:
 ![plot](./.test/data/HG02723/AMY_HG02723_hap1_AMY_h1_84861_524275.png)
 
 
