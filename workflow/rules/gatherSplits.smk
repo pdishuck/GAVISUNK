@@ -24,5 +24,5 @@ def vizInputs(wildcards):
   input_dict = {'bed': bed, 'rlen': rules.combine_ont.output.ONT_len, 'interout': rules.confirm_out.output.flag, 'pos_locs': rules.split_sunkpos.output.flag}
   if not pd.isnull(manifest_df.at[wildcards.sample, f'{wildcards.hap}_colortrack']):
     input_dict['colorbed'] = manifest_df.at[wildcards.sample, f'{wildcards.hap}_colortrack']
-  print(input_dict)
+  #print(input_dict)
   return input_dict

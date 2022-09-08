@@ -32,7 +32,7 @@ lendf.set_index("rname",drop=True,inplace=True)
 
 bedreg1['chrom'].value_counts()
 contigs = list(bedreg1['chrom'].value_counts().index)
-#print(len(contigs))
+print(len(contigs))
 
 
 
@@ -45,12 +45,12 @@ if 'colorbed' in opt_keys:
 for contig in contigs:
 
     cont2 = contig.replace("#","_")
-    #print(contig)
+    print(contig)
     bedreg= bedreg1.query('chrom == @contig')
 
-    print(type(snakemake.input.interout))
-    my_str=os.path.dirname(snakemake.input.interout)
-    print(my_str)
+    #print(type(snakemake.input.interout))
+    #my_str=os.path.dirname(snakemake.input.interout)
+    #print(my_str)
 
     try: outputsdf= pd.read_csv(os.path.dirname(snakemake.input.interout) + "/" + cont2 + "_" + snakemake.wildcards.hap + ".tsv" ,sep="\t",names=['ID','rname'],dtype = {'ID':'int','rname':'string'})
     except:
@@ -66,7 +66,7 @@ for contig in contigs:
     kmermerge = pd.read_csv(kmermergefile,sep="\t",header=None,names=['chrom','loc','kmer','ID'])# this could be split too
     kmermerge = kmermerge.drop_duplicates(subset='kmer')
     plotdir = os.path.dirname(snakemake.output.flag) + "/"
-    print(plotdir)
+    #print(plotdir)
     sunkposfile = os.path.dirname(snakemake.input.pos_locs)+"/"+ cont2 + "_" + snakemake.wildcards.hap + ".sunkpos"
     sunkposcat = pd.read_csv(sunkposfile,sep="\t",header=None,names=['rname','pos','chrom','start','ID'],dtype={'rname':'string','pos':'int64','chrom':'category','start':'int64','ID':'int64'})
 
