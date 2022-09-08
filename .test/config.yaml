@@ -1,3 +1,2 @@
 ONT_manifest: ".test/data/ont.tsv"
 SUNK_len: 20
-bed: .test/data/AMY.bed

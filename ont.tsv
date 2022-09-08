@@ -1,2 +1,2 @@
-sample	hap1_ONT	hap2_ONT	hap1_asm	hap2_asm	hap1_paf	hap2_paf
-{sample_name}	{path_to_ont_hap1_fofn}	{path_to_ont_hap2_fofn}	{path_to_hap1_asm}	{path_to_hap2_asm}	NULL	NULL
+sample	hap1_ONT	hap2_ONT	hap1_asm	hap2_asm	hap1_bed	hap2_bed	hap1_colortrack	hap2_colortrack
+{sample_name}	{path_to_ont_hap1_fofn}	{path_to_ont_hap2_fofn}	{path_to_hap1_asm}	{path_to_hap2_asm}	{path_to_hap1_bed_optional} {path_to_hap2_bed_optional} {path_to_hap1_colorbed_optional} {path_to_hap2_colorbed_optional}
