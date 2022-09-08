@@ -4,9 +4,8 @@ Genome Assembly Validation via Inter-SUNK distances in nanopore reads
 Setup source files in config.yaml and ont.tsv
 
 config.yaml requires:
-- a manifest of ONT data for validation "ONT.tsv",
+- a manifest of ONT data for validation "ont.tsv",
 - and the kmer-length to use for validation "SUNK_len" (default: 20)
-- bed: .bed file of regions to visualize
 
 The ONT manifest is a .tsv file "ont.tsv" with the following columns:
 - sample: must be unique for each file
@@ -14,7 +13,6 @@ The ONT manifest is a .tsv file "ont.tsv" with the following columns:
 - hap[1,2]\_asm : location of haplotype assembly (FASTA)
 - hap[1,2]\_bed : BED format regions of assembly to visualize (optional) 
 - hap[1,2]\_colotrack : BED format color track to include in visualizations (optional) 
-- hap[1,2]\_paf : PAF format alignment of haplotype to reference (optional)
 
 I recommend a single input file for each haplotype, and to haplotype phase with canu and parental illumina (not currently incorporated into this pipeline)
 
@@ -22,12 +20,12 @@ Prerequisites: Snakemake (tested with versions 6.12.1, 7.8.2)
 
 To run snakefile locally on the provided test cases (AMY locus of CHM13/1 pseudodiploid and HG02723), generating optional image outputs, clone this repo and execute:
 ```
-snakemake -R generate_images --use-conda --cores 8 --configfile .test/config.yaml
+snakemake -R --use-conda --cores 8 --configfile .test/config.yaml --resources load=1000
 ```
 
 .BED results are found in the `results/[sample]/final_outs` directory
 
-Automated visualizations of validation gaps are found in the `results/gaps/[sample] directory
+Automated visualizations of validation gaps are found in the `results/pngs/gaps/[sample] directory
 
 For the included test cases, the following output should be generated: `results/gaps/AMY_HG02723/AMY_HG02723_hap1_AMY_h1_84861_524275.png`, corresponding to the region displayed in Figure 1 of the manuscript:
 ![plot](./.test/data/HG02723/AMY_HG02723_hap1_AMY_h1_84861_524275.png)
