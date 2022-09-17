@@ -58,8 +58,11 @@ def main():
     kmermerge['ID2'] = kmermerge['chrom'].astype(str) +":"+ kmermerge['ID'].astype(str)
     sunkposfile = args.sunkpos
     sunkposcat = pd.read_csv(sunkposfile,sep="\t",header=None,names=['rname','pos','chrom','start','ID'],dtype={'rname':'string','pos':'uint32','chrom':'category','start':'uint32','ID':'uint32'})# 
-
-    contig = sunkposcat['chrom'].unique().tolist()[0]
+    if len(sunkposcat) == 0:
+        pd.DataFrame(list(['no_reads'])).to_csv(ofile,header=False,sep="\t",index=False)
+        exit()
+    else:
+        contig = sunkposcat['chrom'].unique().tolist()[0]
 
 
 

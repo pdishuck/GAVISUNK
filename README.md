@@ -22,6 +22,10 @@ To run snakefile locally on the provided test cases (AMY locus of CHM13/1 pseudo
 ```
 snakemake -R --use-conda --cores 8 --configfile .test/config.yaml --resources load=1000
 ```
+For Centromeres 1st run above step and then execute
+```
+snakemake -R --use-conda --cores 8 --configfile .test/config.yaml --resources load=1000 checkGaps
+```
 
 .BED results are found in the `results/[sample]/final_outs` directory
 

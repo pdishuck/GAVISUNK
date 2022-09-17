@@ -13,7 +13,11 @@ from ncls import NCLS
 
 print(snakemake.input)
 
-runmode=snakemake.wildcards.runmode
+if 'runmode' in list(snakemake.wildcards.keys()):
+    runmode=snakemake.wildcards.runmode
+else:
+    runmode = 'gaps'
+
 opt_keys = list(snakemake.input.keys())
 
 regbedfile = snakemake.input.bed
@@ -49,12 +53,12 @@ for contig in contigs:
     bedreg= bedreg1.query('chrom == @contig')
 
     #print(type(snakemake.input.interout))
-    #my_str=os.path.dirname(snakemake.input.interout)
-    #print(my_str)
-
-    try: outputsdf= pd.read_csv(os.path.dirname(snakemake.input.interout) + "/" + cont2 + "_" + snakemake.wildcards.hap + ".tsv" ,sep="\t",names=['ID','rname'],dtype = {'ID':'int','rname':'string'})
-    except:
-        print("outputsdf not found for", contig)
+    my_str=os.path.dirname(snakemake.input.interout) + "/" + cont2 + "_" + snakemake.wildcards.hap + ".tsv"
+    print(my_str)
+    #print()
+    outputsdf= pd.read_csv(my_str,sep="\t",names=['ID','rname'],dtype = {'ID':'int','rname':'string'})
+    #except:
+    #    print("outputsdf not found for", contig)
 
     outputsdf.set_index("rname",inplace=True,drop=True)
 
@@ -62,12 +66,12 @@ for contig in contigs:
         print("NO READS FOR", contig)
 
 
-    kmermergefile = os.path.dirname(snakemake.input.pos_locs) +"/"+ cont2 + "_" + snakemake.wildcards.hap + ".loc"
+    kmermergefile = os.path.dirname(snakemake.input.locs) +"/"+ cont2 + "_" + snakemake.wildcards.hap + ".loc"
     kmermerge = pd.read_csv(kmermergefile,sep="\t",header=None,names=['chrom','loc','kmer','ID'])# this could be split too
     kmermerge = kmermerge.drop_duplicates(subset='kmer')
     plotdir = os.path.dirname(snakemake.output.flag) + "/"
     #print(plotdir)
-    sunkposfile = os.path.dirname(snakemake.input.pos_locs)+"/"+ cont2 + "_" + snakemake.wildcards.hap + ".sunkpos"
+    sunkposfile = os.path.dirname(snakemake.input.pos)+"/"+ cont2 + "_" + snakemake.wildcards.hap + ".sunkpos"
     sunkposcat = pd.read_csv(sunkposfile,sep="\t",header=None,names=['rname','pos','chrom','start','ID'],dtype={'rname':'string','pos':'int64','chrom':'category','start':'int64','ID':'int64'})
 
     kmermerge['ID2'] = kmermerge['chrom'].astype(str) +":"+ kmermerge['ID'].astype(str)

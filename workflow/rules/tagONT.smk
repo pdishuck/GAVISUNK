@@ -3,7 +3,7 @@ rule split_ONT: # accept FOFN
   input:
     reads=lambda wildcards: manifest_df.at[wildcards.sample,f"{wildcards.hap}_ONT"]
   output:
-    reads=temp(scatter.split("temp/{{sample}}/reads/{{hap}}_{scatteritem}.fq.gz")),
+    reads=scatter.split("temp/{{sample}}/reads/{{hap}}_{scatteritem}.fq.gz"),
   resources:
     mem=2,
     load = 100
@@ -22,7 +22,7 @@ rule SUNK_annot:
     db = rules.define_SUNKs.output.db,
     ONT = "temp/{sample}/reads/{hap}_{scatteritem}.fq.gz",
   output:
-    temp('results/{sample}/sunkpos/{hap}_{scatteritem}.sunkpos')
+    'results/{sample}/sunkpos/{hap}_{scatteritem}.sunkpos'
   resources:
     mem=8,
     load=100
@@ -40,7 +40,7 @@ rule read_lengths:
   input:
     ONT = "temp/{sample}/reads/{hap}_{scatteritem}.fq.gz",
   output:
-    temp('results/{sample}/sunkpos/{hap}_{scatteritem}.rlen'),
+    'results/{sample}/sunkpos/{hap}_{scatteritem}.rlen',
   resources:
     mem=8,
     load=100
@@ -59,7 +59,7 @@ rule diag_filter_step:
     ONT_pos = rules.SUNK_annot.output,
     fai =  lambda wildcards: manifest_df.at[wildcards.sample,f"{wildcards.hap}_asm"]+".fai"
   output:
-    ONT_pos_diag = temp('results/{sample}/sunkpos/{hap}_{scatteritem}_diag.sunkpos')
+    ONT_pos_diag = 'results/{sample}/sunkpos/{hap}_{scatteritem}_diag.sunkpos'
   resources:
     mem=8,
     load=100
@@ -77,7 +77,7 @@ rule diag_filter_final:
     ONT_pos = rules.SUNK_annot.output,
     ONT_pos_diag = rules.diag_filter_step.output.ONT_pos_diag
   output:
-    ONT_pos_diag_final = temp('results/{sample}/sunkpos/{hap}_{scatteritem}_diag2.sunkpos')
+    ONT_pos_diag_final = 'results/{sample}/sunkpos/{hap}_{scatteritem}_diag2.sunkpos'
   resources:
     mem=8,
     load=100

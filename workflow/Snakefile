@@ -10,7 +10,7 @@ SNAKEMAKE_DIR = os.path.dirname(workflow.snakefile)
 MANIFEST = config["ONT_manifest"]
 BED = config.get('ref_bed','')
 REF = config.get('ref','')
-
+PASS2 = config.get('pass2',False)
 
 manifest_df = pd.read_csv(MANIFEST, sep='\t', header=0, index_col='sample')
 
@@ -20,14 +20,21 @@ else:
   bed_df = pd.read_csv(BED, sep='\t', header=None, names=['contig','start','stop','gene'])
   bed_df.set_index(['gene'], inplace=True, drop=True)
 
+splitsize=10
 scattergather:
-    split=config.get("nchunks", 10),
+    split=config.get("nchunks", splitsize),
 
 wildcard_constraints:
     hap="hap1|hap2"
 
+if PASS2:
+  runmodes = ['check_gaps','gaps']
+else:
+  runmodes = ['gaps']
+
 include: "rules/defineSUNKs.smk"
 include: "rules/tagONT.smk"
+include: "rules/checkGaps.smk"
 include: "rules/genImages.smk"
 # include: "rules/gatherSplits.smk"
 
@@ -41,6 +48,7 @@ rule all:
     expand("results/{sample}/final_out/{hap}.valid.bed", sample=manifest_df.index, hap=['hap1','hap2']), 
     expand("results/{sample}/final_out/{hap}.gaps.bed", sample=manifest_df.index, hap=['hap1','hap2']),
     expand("results/{sample}/final_out/{hap}.gaps.slop.bed", sample=manifest_df.index, hap=['hap1','hap2']),
+    #expand('results/pngs/{runmode}/{sample}/{sample}_{hap}.done', sample=manifest_df.index, hap=['hap1','hap2'], runmode='check_gaps'),
     expand('results/pngs/gaps/{sample}/{sample}_{hap}.done', sample=manifest_df.index, hap=['hap1','hap2']),
     [expand('results/pngs/user_bed/{sample}/{sample}_{hap}.done', sample=manifest_df.loc[~ pd.isnull(manifest_df[f'{i}_bed'])].index, hap=i) for i in ['hap1','hap2']]
 

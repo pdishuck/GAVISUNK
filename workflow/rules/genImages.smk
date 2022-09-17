@@ -23,5 +23,23 @@ rule viz_contigs:
     "../scripts/viz.py"
 
 
+rule viz_check_gaps:
+  input:
+    unpack(vizInputsCheck)
+  output:
+    flag = touch('results/pngs/check_gaps/{sample}/{sample}_{hap}.done')
+  resources:
+    mem = 160,
+    load = 200,
+  threads: 2
+  conda:
+    "../envs/viz.yaml"
+  log:
+     "logs/{sample}_{hap}_viz_contigs.log"
+  script:
+    "../scripts/viz.py"
 
     
+rule checkGaps:
+  input:
+     expand('results/pngs/check_gaps/{sample}/{sample}_{hap}.done', sample=manifest_df.index, hap=['hap1','hap2'])
