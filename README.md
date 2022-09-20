@@ -1,3 +1,5 @@
+
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/pdishuck/GAVISUNK/CI/main)
 # GAVISUNK
 Genome Assembly Validation via Inter-SUNK distances in nanopore reads
 
