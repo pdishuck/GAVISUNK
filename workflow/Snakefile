@@ -25,7 +25,8 @@ scattergather:
     split=config.get("nchunks", splitsize),
 
 wildcard_constraints:
-    hap="hap1|hap2"
+    hap="hap1|hap2",
+    sample="|".join(manifest_df.index.tolist())
 
 if PASS2:
   runmodes = ['check_gaps','gaps']
