@@ -8,7 +8,7 @@ def getSunkLocs(wildcards):
 
 def getInterOut(wildcards):
   CONTIGS = glob_wildcards("results/{sample}/inter_outs/{contigs}_{hap}.tsv".format(sample=wildcards.sample, hap=wildcards.hap, contigs='{contigs}')).contigs
-  print("results/{sample}/inter_outs/{contigs}_{hap}.tsv")
+  # print("results/{sample}/inter_outs/{contigs}_{hap}.tsv")
   return expand("results/{sample}/inter_outs/{contigs}_{hap}.tsv", sample=wildcards.sample, hap=wildcards.hap, contigs=CONTIGS)
 
 def getSunkPos(wildcards):
@@ -16,7 +16,7 @@ def getSunkPos(wildcards):
   return expand("results/{sample}/breaks/{contigs}_{hap}.sunkpos", sample=wildcards.sample, hap=wildcards.hap, contigs=CONTIGS)
 
 def vizInputs(wildcards):
-  print(wildcards.runmode)
+  # print(wildcards.runmode)
   if wildcards.runmode == 'user_bed':
     bed = manifest_df.at[wildcards.sample, f'{wildcards.hap}_bed']
   elif wildcards.runmode == 'gaps':
