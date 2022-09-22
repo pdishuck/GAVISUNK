@@ -3,6 +3,11 @@
 # GAVISUNK
 Genome Assembly Validation via Inter-SUNK distances in nanopore reads
 
+## Hi-C Input Setup ##
+Adapted from https://github.com/vibansal/HapCUT2/tree/master/recipes/HiC_Longread
+
+
+
 Setup source files in config.yaml and ont.tsv
 
 config.yaml requires:
