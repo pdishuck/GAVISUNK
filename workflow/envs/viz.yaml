@@ -1,8 +1,8 @@
 name: viz
 channels:
+  - conda-forge
   - bioconda
   - anaconda
-  - conda-forge
   - defaults
 dependencies:
   - kmer-jellyfish=2.3.0
