@@ -6,6 +6,22 @@ rule confirm_out:
   output:
     flag = touch("results/{sample}/inter_outs/{hap}.done")
 
+rule viz_contigs_detailed:
+  input:
+    unpack(vizInputsDetailed)
+  output:
+    flag = touch('results/pngs/{runmode}/{sample}/{sample}_{hap}_detailed.done')
+  resources:
+    mem = 160,
+    load = 200,
+  threads: 2
+  conda:
+    "../envs/viz.yaml"
+  log:
+     "logs/{runmode}_{sample}_{hap}_viz_contigs_detailed.log"
+  script:
+    "../scripts/viz_detailed.py"
+    
 rule viz_contigs:
   input:
     unpack(vizInputs)
@@ -23,5 +39,3 @@ rule viz_contigs:
     "../scripts/viz.py"
 
 
-
-    
