@@ -1,0 +1,11 @@
+name: HiCphaseONT
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - chromap=0.2.3
+  - hapcut2=1.2
+  - pigz=2.6
+  - pyfaidx=0.7.1
+  - whatshap=1.5
