@@ -32,6 +32,18 @@ include: "rules/genImages.smk"
 # include: "rules/gatherSplits.smk"
 
 
+
+detailed_plot = False
+if "plot_detailed" in config.keys():
+  if config['plot_detailed'] == True:
+    print("Detailed plot mode active")
+    detailed_plot = True
+
+if detailed_plot:
+  target = expand('results/pngs/gaps/{sample}/{sample}_{hap}_detailed.done', sample=manifest_df.index, hap=['hap1','hap2']),
+else:
+  target = []
+
 rule all:
   input: 
     expand('results/{sample}/sunkpos/{hap}.sunkpos', sample=manifest_df.index, hap=['hap1','hap2']),
@@ -42,5 +54,6 @@ rule all:
     expand("results/{sample}/final_out/{hap}.gaps.bed", sample=manifest_df.index, hap=['hap1','hap2']),
     expand("results/{sample}/final_out/{hap}.gaps.slop.bed", sample=manifest_df.index, hap=['hap1','hap2']),
     expand('results/pngs/gaps/{sample}/{sample}_{hap}.done', sample=manifest_df.index, hap=['hap1','hap2']),
-    [expand('results/pngs/user_bed/{sample}/{sample}_{hap}.done', sample=manifest_df.loc[~ pd.isnull(manifest_df[f'{i}_bed'])].index, hap=i) for i in ['hap1','hap2']]
+    [expand('results/pngs/user_bed/{sample}/{sample}_{hap}.done', sample=manifest_df.loc[~ pd.isnull(manifest_df[f'{i}_bed'])].index, hap=i) for i in ['hap1','hap2']],
+    target
 

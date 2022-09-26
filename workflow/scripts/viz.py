@@ -122,7 +122,7 @@ for contig in contigs:
         ax.set_xlim(regstart,regend)
         intervals = []
         poss = []
-
+        print("NUMBER OF RNAMES: ",len(list(pd.unique(df.index))))
         for rname in list(pd.unique(df.index)):
             try: rlen = lendf.loc[rname].len
             except:
@@ -168,7 +168,7 @@ for contig in contigs:
         ncls = NCLS(interval_df.Start,interval_df.End,interval_df.index)
         row_asn = dict()
         interval_df.sort_values(by='Start',inplace=True)
-
+        print("INTERVAL_DF len: ", len(interval_df))
         rows_used = set([0])
         if runmode == 'user_bed':
             for i,s,e in interval_df.itertuples():

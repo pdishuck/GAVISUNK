@@ -36,6 +36,25 @@ rule SUNK_annot:
     workflow/scripts/kmerpos_annot3 {input.ONT} {input.db} {input.locs} {output}
     """
 
+rule combine_ont_nofilt:
+  input:
+    gather_ONT_pos = gather.split("results/{{sample}}/sunkpos/{{hap}}_{scatteritem}.sunkpos"),
+  output:
+    ONT_pos = 'results/{sample}/sunkpos/{hap}_detailed.sunkpos',
+  resources:
+    mem=8,
+    load=100
+  threads: 1
+  conda:
+    "../envs/viz.yaml"
+  log:
+    "logs/{sample}/{hap}_combine_ont.log"
+  shell:
+    """
+    cat {input.gather_ONT_pos} > {output.ONT_pos}
+    """
+
+
 rule read_lengths:
   input:
     ONT = "temp/{sample}/reads/{hap}_{scatteritem}.fq.gz",
