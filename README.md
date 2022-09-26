@@ -9,6 +9,8 @@ config.yaml requires:
 - a manifest of ONT data for validation "ont.tsv",
 - and the kmer-length to use for validation "SUNK_len" (default: 20)
 
+optionally, for more detailed output plots (uses more RAM, experimental), set `plot_detailed: True` in config.yaml
+
 The ONT manifest is a .tsv file "ont.tsv" with the following columns:
 - sample: must be unique for each file
 - hap[1,2]\_ONT : location of ONT reads (gzipped or raw .fa or .fq)
