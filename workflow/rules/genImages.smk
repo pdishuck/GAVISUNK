@@ -39,3 +39,24 @@ rule viz_contigs:
     "../scripts/viz.py"
 
 
+rule covprob:
+  input:
+    unpack(covprobInputs),
+    fai =  lambda wildcards: manifest_df.at[wildcards.sample,f"{wildcards.hap}_asm"]+".fai",
+    # SUNK_len = str(config['SUNK_len']),
+  output:
+    tsv = 'results/{sample}/final_out/{hap}.gaps.covprob.tsv',
+  resources:
+    mem = 160,
+    load = 200,
+  threads: 2
+  benchmark:
+    "benchmarks/{sample}_{hap}_covprob.bench"
+  conda:
+    "../envs/viz.yaml"
+  log:
+     "logs/{sample}_{hap}_covprob.log"
+  script:
+    "../scripts/covprob.py"
+
+

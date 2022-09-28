@@ -53,6 +53,7 @@ rule all:
     expand("results/{sample}/final_out/{hap}.valid.bed", sample=manifest_df.index, hap=['hap1','hap2']), 
     expand("results/{sample}/final_out/{hap}.gaps.bed", sample=manifest_df.index, hap=['hap1','hap2']),
     expand("results/{sample}/final_out/{hap}.gaps.slop.bed", sample=manifest_df.index, hap=['hap1','hap2']),
+    expand("results/{sample}/final_out/{hap}.gaps.covprob.tsv", sample=manifest_df.index, hap=['hap1','hap2']),
     expand('results/pngs/gaps/{sample}/{sample}_{hap}.done', sample=manifest_df.index, hap=['hap1','hap2']),
     [expand('results/pngs/user_bed/{sample}/{sample}_{hap}.done', sample=manifest_df.loc[~ pd.isnull(manifest_df[f'{i}_bed'])].index, hap=i) for i in ['hap1','hap2']],
     target
