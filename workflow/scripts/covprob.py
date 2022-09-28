@@ -130,4 +130,5 @@ df1['max_gap'] = max_gaps
 df1['covprob'] = df1['max_gap'].apply(lambda x: covprobsdict[int(x/1000)] )
 # df1.sort_values(by='covprob').head(25)
 
-df1.drop(columns='index').to_csv(snakemake.output.tsv,index=False,sep="\t")
+# df1.drop(columns='index').to_csv(snakemake.output.tsv,index=False,sep="\t")
+df1.to_csv(snakemake.output.tsv,index=False,sep="\t")
