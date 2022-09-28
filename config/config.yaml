@@ -1,2 +1,10 @@
-ONT_manifest: .test/data/ont.tsv
+# ONT_manifest: ont.tsv
+# ONT_manifest: ont_25.tsv
+# ONT_manifest: ont_top10_1-0.tsv 
+# ONT_manifest: ont_top10_1-1.tsv 
+# ONT_manifest: ont_top10_0-1.tsv 
+ONT_manifest: ont_next15_0-1.tsv 
+nchunks: 1
+# ONT_manifest: ont_100kbp_inversion_1-0.tsv
+# ONT_manifest:  ont_del100k_1-0.tsv
 SUNK_len: 20

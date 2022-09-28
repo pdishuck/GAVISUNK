@@ -1,2 +1,3 @@
 sample	hap1_ONT	hap2_ONT	hap1_asm	hap2_asm	hap1_bed	hap2_bed	hap1_colortrack	hap2_colortrack
-{sample_name}	{path_to_ont_hap1_fofn}	{path_to_ont_hap2_fofn}	{path_to_hap1_asm}	{path_to_hap2_asm}	{path_to_hap1_bed_optional} {path_to_hap2_bed_optional} {path_to_hap1_colorbed_optional} {path_to_hap2_colorbed_optional}
+del_test3b2	/net/eichler/vol26/projects/gavisunk/nobackups/alli_GAVISUNK/uniq/ONT_CHM13b.fa	/net/eichler/vol26/projects/gavisunk/nobackups/alli_GAVISUNK/uniq/ONT_CHM1.fa	del_100_at.fa	data/CHM1_cat2b.fa	/net/eichler/vol26/projects/gavisunk/nobackups/alli_GAVISUNK/del_test.bed	NULL	NULL	NULL
+del_test4	/net/eichler/vol26/projects/gavisunk/nobackups/alli_GAVISUNK/uniq/ONT_CHM13b.fa	/net/eichler/vol26/projects/gavisunk/nobackups/alli_GAVISUNK/uniq/ONT_CHM1.fa	/net/eichler/vol26/projects/gavisunk/nobackups/sim/del_100_1b.fa	data/CHM1_cat2.fa	/net/eichler/vol26/projects/gavisunk/nobackups/alli_GAVISUNK/del_test.bed	NULL	NULL	NULL

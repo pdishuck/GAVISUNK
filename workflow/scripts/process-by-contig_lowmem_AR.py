@@ -40,6 +40,7 @@ def main():
 
     parser.add_argument("--minlen", help="minimum length filter for reads to visualize",default=10000,type=int)
     parser.add_argument("--opt_filt", help="apply optional filter",action='store_true')
+    parser.add_argument("--stringency", help="decimal leeway for inter-sunk distance",default=0.02,type=float,)
 
     args = parser.parse_args()
     #contig = args.contig
@@ -144,7 +145,7 @@ def main():
         locarray = list(it.combinations(g['pos'],2)) # keep track of ID-Pos corresponence
         with np.errstate(divide='ignore'): # kmers occasionally seen in multiple locations on same read 
             diffarray = posarray/startarray
-        mask = np.logical_not((diffarray >= 1.1) + (diffarray <= 0.9))
+        mask = np.logical_not((diffarray >= (1 + args.stringency)) + (diffarray <= (1-args.stringency)))
         if sum(mask) < 1: continue
         # only calculate on masked version (distdf2 equiv)
         signarray = signarray.astype(int)

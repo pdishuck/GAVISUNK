@@ -1,4 +1,5 @@
 include: "gatherSplits.smk"
+
 rule split_ONT: # accept FOFN
   input:
     reads=lambda wildcards: manifest_df.at[wildcards.sample,f"{wildcards.hap}_ONT"]
@@ -54,6 +55,69 @@ rule read_lengths:
     workflow/scripts/rlen {input.ONT} {output}
     """
 
+rule diag_filter_step_HiC:
+  input:
+    ONT_pos = rules.SUNK_annot.output,
+    fai =  lambda wildcards: manifest_df.at[wildcards.sample,f"{wildcards.hap}_asm"]+".fai",
+    phases =  lambda wildcards: manifest_df.at[wildcards.sample,"HiC_phasefile"]
+  output:
+    ONT_pos_diag = temp('results/{sample}/sunkpos/{hap}_{scatteritem}_diag.sunkpos'),
+    cntfile = temp('results/{sample}/sunkpos/{hap}_{scatteritem}.phasecnt'),
+  resources:
+    mem=8,
+    load=100
+  threads: 1
+  conda:
+    "../envs/viz.yaml"
+  log:
+    "logs/{sample}/{hap}_{scatteritem}_diag_filter_step.log"
+  shell:
+    """
+    workflow/src/diag_filter_v4_nofai {input.ONT_pos} {input.phases} 3500 {output.cntfile} > {output.ONT_pos_diag}
+    """
+
+
+rule combine_cnt:
+  input:
+    gather_ONT_phasecnt = gather.split("results/{{sample}}/sunkpos/{{hap}}_{scatteritem}.phasecnt"),
+  output:
+    phasecnt = temp('results/{sample}/sunkpos/{hap}.phasecnt'),
+    bestphase = 'results/{sample}/sunkpos/{hap}.bestphase',
+  resources:
+    mem=8,
+    load=100
+  threads: 1
+  conda:
+    "../envs/viz.yaml"
+  log:
+    "logs/{sample}/{hap}_combine_phasecnt.log"
+  shell:
+    """
+    cat {input.gather_ONT_phasecnt} > {output.phasecnt}
+    workflow/src/diag_filter_CntBestHap {output.phasecnt} {output.bestphase}
+    """
+
+rule diag_filter_final_HiC:
+  input:
+    ONT_pos = rules.SUNK_annot.output,
+    ONT_pos_diag = rules.diag_filter_step_HiC.output.ONT_pos_diag,
+    bestphase = rules.combine_cnt.output.bestphase,
+  output:
+    ONT_pos_diag_final = temp('results/{sample}/sunkpos/{hap}_{scatteritem}_diag2.sunkpos')
+  resources:
+    mem=8,
+    load=100
+  threads: 1
+  conda:
+    "../envs/viz.yaml"
+  log:
+    "logs/{sample}/{hap}_{scatteritem}_diag_filter_final.log"
+  shell:
+    """
+    workflow/src/diag_filter_step2_HiC {input.ONT_pos} {input.ONT_pos_diag} {input.bestphase} > {output.ONT_pos_diag_final}
+    """
+
+
 rule diag_filter_step:
   input:
     ONT_pos = rules.SUNK_annot.output,
@@ -72,6 +136,9 @@ rule diag_filter_step:
     """
     workflow/scripts/diag_filter_v3 {input.ONT_pos} {input.fai} > {output.ONT_pos_diag}
     """
+
+
+
 rule diag_filter_final:
   input:
     ONT_pos = rules.SUNK_annot.output,
@@ -109,6 +176,25 @@ rule combine_ont:
     """
     cat {input.gather_ONT_pos} > {output.ONT_pos}
     cat {input.gather_ONT_len} > {output.ONT_len}
+    """
+rule bad_sunks_HiC:
+  input:
+    hap1_fai = lambda wildcards: manifest_df.at[wildcards.sample, "hap1_asm"]+".fai",
+    hap2_fai = lambda wildcards: manifest_df.at[wildcards.sample, "hap2_asm"]+".fai",
+    hap1_sunkpos = "results/{sample}/sunkpos/hap1.sunkpos",
+  output:
+    badsunks = "results/{sample}/sunkpos/bad_sunks.txt"
+  resources:
+    mem=10,
+    load=100
+  threads: 1
+  conda:
+    "../envs/viz.yaml"
+  log:
+    "logs/{sample}/bad_sunks.log"
+  shell:
+    """
+    python workflow/scripts/badsunks_AR.py {input.hap1_fai} {input.hap2_fai} {input.hap1_sunkpos} {input.hap1_sunkpos} {output.badsunks}
     """
 rule bad_sunks:
   input:
@@ -148,6 +234,29 @@ checkpoint split_sunkpos:
   script:
     "../scripts/split_locs.py"
  
+rule process_by_contig_HiC:
+  input:
+    sunk_pos_contig = "results/{sample}/breaks/{contigs}_hap1.sunkpos",
+    locs_contig = "results/{sample}/breaks/{contigs}_{hap}.loc",
+    rlen = rules.combine_ont.output.ONT_len,
+    bad_sunks = rules.bad_sunks.output.badsunks,
+  output:
+    outputdf = "results/{sample}/inter_outs/{contigs}_{hap}.tsv",
+    bed = "results/{sample}/bed_files/{contigs}_{hap}.bed"
+  resources:
+    mem=16,
+    load=250,
+  threads: 1
+  conda:
+    "../envs/viz.yaml"
+  log:
+    "logs/{sample}/{contigs}_{hap}_process_by_contig.log"
+  shell:
+    """
+    python workflow/scripts/process-by-contig_lowmem_AR.py {input.locs_contig} {input.sunk_pos_contig} {input.rlen} {input.bad_sunks} {output.outputdf} {output.bed}
+    touch {output.bed}
+    """
+
 rule process_by_contig:
   input:
     sunk_pos_contig = "results/{sample}/breaks/{contigs}_{hap}.sunkpos",
@@ -174,7 +283,7 @@ rule process_by_contig:
 rule gather_process_by_contig:
   input:
     bed = gatherAsmBeds,
-    flag = rules.split_sunkpos.output.flag
+    flag = "results/{sample}/breaks/hap1_splits_pos.done"
   output:
     allbeds = "results/{sample}/final_out/{hap}.valid.bed"
   resources:
@@ -229,4 +338,19 @@ rule slop_gaps:
     """
     bedtools slop -i {input.gaps} -g {input.fai}  -b 200000 > {output.gaps_slop}
     """
+
+
+
+HiC = False
+if "HiC_phasefile" in bed_df.columns:
+  print("HiC mode active")
+  HiC = True
+print(Rules)
+# if HiC:
+#   ruleorder: diag_filter_step_HiC > diag_filter_step
+#   ruleorder: diag_filter_final_HiC > diag_filter_final
+# else:
+#   ruleorder: diag_filter_step >  diag_filter_step_HiC
+#   ruleorder: diag_filter_final > diag_filter_final_HiC
+
 

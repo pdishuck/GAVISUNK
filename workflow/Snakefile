@@ -32,15 +32,51 @@ include: "rules/genImages.smk"
 # include: "rules/gatherSplits.smk"
 
 
-rule all:
-  input: 
-    expand('results/{sample}/sunkpos/{hap}.sunkpos', sample=manifest_df.index, hap=['hap1','hap2']),
+
+
+HiC = False
+if "HiC_phasefile" in manifest_df.columns:
+  print("HiC mode active")
+  HiC = True
+if HiC:
+  ruleorder: diag_filter_step_HiC > diag_filter_step
+  ruleorder: diag_filter_final_HiC > diag_filter_final
+  ruleorder: bad_sunks_HiC > bad_sunks
+  ruleorder: process_by_contig_HiC > process_by_contig
+  ruleorder: viz_contigs_HiC > viz_contigs
+else:
+  ruleorder: diag_filter_step >  diag_filter_step_HiC
+  ruleorder: diag_filter_final > diag_filter_final_HiC
+  ruleorder: bad_sunks > bad_sunks_HiC
+  ruleorder: process_by_contig > process_by_contig_HiC
+  ruleorder: viz_contigs > viz_contigs_HiC
+
+if not HiC:
+#  ruleorder: all_HiC > all
+  target =  [  expand('results/{sample}/sunkpos/{hap}.sunkpos', sample=manifest_df.index, hap=['hap1','hap2']),
     expand('results/{sample}/sunkpos/{hap}.rlen', sample=manifest_df.index, hap=['hap1','hap2']),
     expand('results/{sample}/sunkpos/bad_sunks.txt', sample=manifest_df.index),
     expand("results/{sample}/breaks/{hap}_splits_pos.done",sample=manifest_df.index, hap=['hap1','hap2']),
     expand("results/{sample}/final_out/{hap}.valid.bed", sample=manifest_df.index, hap=['hap1','hap2']), 
     expand("results/{sample}/final_out/{hap}.gaps.bed", sample=manifest_df.index, hap=['hap1','hap2']),
     expand("results/{sample}/final_out/{hap}.gaps.slop.bed", sample=manifest_df.index, hap=['hap1','hap2']),
-    expand('results/pngs/gaps/{sample}/{sample}_{hap}.done', sample=manifest_df.index, hap=['hap1','hap2']),
-    [expand('results/pngs/user_bed/{sample}/{sample}_{hap}.done', sample=manifest_df.loc[~ pd.isnull(manifest_df[f'{i}_bed'])].index, hap=i) for i in ['hap1','hap2']]
+]
+#    expand('results/pngs/gaps/{sample}/{sample}_{hap}.done', sample=manifest_df.index, hap=['hap1','hap2']),
+#    [expand('results/pngs/user_bed/{sample}/{sample}_{hap}.done', sample=manifest_df.loc[~ pd.isnull(manifest_df[f'{i}_bed'])].index, hap=i) for i in ['hap1','hap2']]
 
+elif HiC:
+#  ruleorder: all > all_HiC
+  target =  [
+    expand('results/{sample}/sunkpos/{hap}.sunkpos', sample=manifest_df.index, hap=['hap1']),
+    expand('results/{sample}/sunkpos/{hap}.rlen', sample=manifest_df.index, hap=['hap1']),
+    expand('results/{sample}/sunkpos/bad_sunks.txt', sample=manifest_df.index),
+    expand("results/{sample}/breaks/{hap}_splits_pos.done",sample=manifest_df.index, hap=['hap1']),
+    expand("results/{sample}/final_out/{hap}.valid.bed", sample=manifest_df.index, hap=['hap1']), 
+    expand("results/{sample}/final_out/{hap}.gaps.bed", sample=manifest_df.index, hap=['hap1']),
+    expand("results/{sample}/final_out/{hap}.gaps.slop.bed", sample=manifest_df.index, hap=['hap1']),
+    expand('results/pngs/gaps/{sample}/{sample}_{hap}.done', sample=manifest_df.index, hap=['hap1']),
+    [expand('results/pngs/user_bed/{sample}/{sample}_{hap}.done', sample=manifest_df.loc[~ pd.isnull(manifest_df[f'{i}_bed'])].index, hap=i) for i in ['hap1']]
+]
+print(target)
+rule all:
+  input: target
