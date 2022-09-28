@@ -42,7 +42,8 @@ rule viz_contigs:
 rule covprob:
   input:
     unpack(covprobInputs),
-    fai =  lambda wildcards: manifest_df.at[wildcards.sample,f"{wildcards.hap}_asm"]+".fai"
+    fai =  lambda wildcards: manifest_df.at[wildcards.sample,f"{wildcards.hap}_asm"]+".fai",
+    # SUNK_len = str(config['SUNK_len']),
   output:
     tsv = 'results/{sample}/final_out/{hap}.gaps.covprob.tsv',
   resources:

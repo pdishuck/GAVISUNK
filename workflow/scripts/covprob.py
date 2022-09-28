@@ -63,7 +63,7 @@ def cov_prob(intsize,readlen,readcnt,basequal=1): # everything in kbp ?
 x = Symbol('x')
 p=0.94 # read quality
 q=1-p
-r=20 # kmer size
+r=int(snakemake.config['SUNK_len']) # kmer size
 
 roots2 = solveset( 1 - x + q*((p)**(r)) * ((x)**(r+1)), x, domain=Reals)
 pinv = 1/p
