@@ -1,4 +1,5 @@
 rule combine_asm_haps:
+  priority: 1
   input:
     hap1_asm = lambda wildcards: manifest_df.at[wildcards.sample, "hap1_asm"],
     hap2_asm = lambda wildcards: manifest_df.at[wildcards.sample, "hap2_asm"]
@@ -25,9 +26,9 @@ rule jellyfish_count:
   output:
     counts = "results/{sample}/db/jellyfish.counts"
   resources:
-    mem = 1,
+    mem = 4,
     load = 900
-  threads:32
+  threads:8
   conda:
     "../envs/viz.yaml"
   params:
@@ -47,13 +48,13 @@ rule define_SUNKs:
     db = "results/{sample}/db/jellyfish.db",
     fa = "results/{sample}/db/jellyfish.fa"
   resources:
-    mem=1,
+    mem=4,
     load = 900
   conda:
     "../envs/viz.yaml"
   log:
     "logs/{sample}/define_SUNKs.log"
-  threads: 32
+  threads: 8
   shell:
     """
     jellyfish dump -c -t {input.counts}  | awk '{{print $1}}' > {output.db}
@@ -89,9 +90,9 @@ rule mrsfast_search:
     sam = temp("results/{sample}/mrsfast/kmer_map.sam"),
     bam = temp("results/{sample}/mrsfast/kmer_map.bam"),
   resources:
-      mem=2, #73 G VMS
+      mem=4, #73 G VMS
       load=900
-  threads: 16
+  threads: 8
   conda:
     "../envs/viz.yaml"
   log:
