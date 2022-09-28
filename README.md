@@ -44,7 +44,7 @@ Adapted from https://github.com/vibansal/HapCUT2/tree/master/recipes/HiC_Longrea
 - Hi-C data
 
 Output: HiC_phasefile
-Example: .test/AMY_HG02723_HiC/hicphase.ont.tsv
+Example: .test/data/HiC/ont.phases.tsv
 
 
 Troubleshooting tips: 
