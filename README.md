@@ -29,7 +29,7 @@ cd GAVISUNK
 snakemake -R --use-conda --cores 8 --configfile .test/config.yaml --resources load=1000
 ```
 
-.BED results are found in the `results/[sample]/final_outs` directory
+.BED results are found in the `results/[sample]/final_outs` directory, along with .tsv files summarizing the probability of each validation gap having been spanned by ONT reads, given the input library
 
 Automated visualizations of validation gaps are found in the `results/pngs/gaps/[sample]` directory
 
