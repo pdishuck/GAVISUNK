@@ -20,7 +20,7 @@ The ONT manifest is a .tsv file "ont.tsv" with the following columns:
 
 I recommend a single input file for each haplotype, and to haplotype phase with canu and parental illumina (not currently incorporated into this pipeline). Hi-C phasing of ONT is also possible: see the "hic" branch. 
 
-Prerequisites: Snakemake (tested with versions 6.12.1, 7.8.2, 7.14.0)
+### Prerequisites: Snakemake (tested with versions 6.12.1, 7.8.2, 7.14.0)
 
 To run snakefile locally on the provided test cases (AMY locus of CHM13/1 pseudodiploid and HG02723), generating optional image outputs, execute:
 ```
@@ -36,13 +36,19 @@ Automated visualizations of validation gaps are found in the `results/pngs/gaps/
 For the included test cases, the following output should be generated: `results/gaps/AMY_HG02723/AMY_HG02723_hap1_AMY_h1_84861_524275.png`, corresponding to the region displayed in Figure 1 of the manuscript:
 ![plot](./.test/data/HG02723/AMY_HG02723_hap1_AMY_h1_84861_524275.png)
 
-Example SGE execution (your cluster's parameters may vary):
+### Example SGE execution (your cluster's parameters may vary):
 ```
 alias snakesub='mkdir -p log; snakemake --ri --jobname "{rulename}.{jobid}" --drmaa " -V -cwd -j y -o ./log -e ./log -l h_rt=48:00:00 -l mfree={resources.mem}G -pe serial {threads} -w n -S /bin/bash" -w 60'
 snakesub --use-conda -j150 > snakelog 2>&1 &  
 ```
 
-Troubleshooting tips: 
+### Troubleshooting tips: 
 To get snakemake conda envs to work correctly, you may need to deactivate your local conda env ($PATH issues as in https://github.com/snakemake/snakemake/issues/883)
 GAVISUNK is written to execute from its top-level directory. 
 Old versions of dependencies that are in your $PATH by default may interfere with GAVISUNK operation. See dependencies in workflow/envs/viz.yaml
+
+
+
+## How to cite:
+Philip C Dishuck, Allison N Rozanski, Glennis A Logsdon, David Porubsky, Evan E Eichler, GAVISUNK: genome assembly validation via inter-SUNK distances in Oxford Nanopore reads, Bioinformatics, Volume 39, Issue 1, January 2023, btac714, https://doi.org/10.1093/bioinformatics/btac714
+
